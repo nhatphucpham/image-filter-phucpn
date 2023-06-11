@@ -11,7 +11,15 @@ import Jimp = require("jimp");
 export async function filterImageFromURL(inputURL: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
-      const photo = await Jimp.read(inputURL);
+      const photo = await fetch(inputURL).then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error, status = ${res.status}`);
+        }
+        return res.arrayBuffer();
+      }).then((data) => {
+        return Jimp.read(data)
+      });
+      
       const outpath =
         "/tmp/filtered." + Math.floor(Math.random() * 2000) + ".jpg";
       await photo
