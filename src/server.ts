@@ -31,7 +31,9 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     // 2. call filterImageFromURL(image_url) to filter the image
     let filteredImageURL: string = null;
     try {
-      filteredImageURL = await filterImageFromURL(imageURL);
+      if(typeof imageURL === 'string') {
+        filteredImageURL = await filterImageFromURL(imageURL);
+      }
       // 3. send the resulting file in the response
       res.status(200).sendFile(filteredImageURL, (err) => {
         // 4. deletes any files on the server on finish of the response
@@ -42,9 +44,9 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
           deleteLocalFiles([filteredImageURL])
         }
       })
-    } catch (error) {
+    } catch (error: any) {
       // 1. validate the image_url query
-      res.status(422).send("Image cannot filter");
+      res.status(422).send(`Image cannot filter<br/>${error.stack}`);
     }
   });
   /**************************************************************************** */
