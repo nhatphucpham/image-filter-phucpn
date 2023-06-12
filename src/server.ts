@@ -1,4 +1,7 @@
-import express from 'express';
+import express, {
+  Request,
+  Response,
+} from 'express';
 import bodyParser from 'body-parser';
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
@@ -21,19 +24,24 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
    * @param image_url String
    * @returns filw with filePath
    */
-  app.get("/filteredimage", async (req, res) => {
+  app.get("/filteredimage", async (
+    req: Request, res: Response) => {
     // 1. validate the image_url query
-    const { query: { image_url: imageURL } } = req;
-    if (!imageURL && typeof imageURL != 'string') {
+    const { query: { image_url: imageURL } }: {
+      query: {
+        image_url?: string
+      }
+    } = req;
+
+    if (!imageURL) {
       res.status(400).send("image_url is required!")
     }
 
     // 2. call filterImageFromURL(image_url) to filter the image
     let filteredImageURL: string = null;
+    
     try {
-      if(typeof imageURL === 'string') {
-        filteredImageURL = await filterImageFromURL(imageURL);
-      }
+      filteredImageURL = await filterImageFromURL(imageURL);
       // 3. send the resulting file in the response
       res.status(200).sendFile(filteredImageURL, (err) => {
         // 4. deletes any files on the server on finish of the response
@@ -46,7 +54,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
       })
     } catch (error: any) {
       // 1. validate the image_url query
-      res.status(422).send(`Image cannot filter<br/>${error.stack}`);
+      res.status(422).send('Image cannot filter');
     }
   });
   /**************************************************************************** */
